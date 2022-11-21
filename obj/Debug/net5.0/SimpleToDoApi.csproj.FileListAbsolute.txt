@@ -70,4 +70,3 @@ C:\Users\Decagon\source\repos\SimpleToDoApi\SimpleToDoApi\obj\Debug\net5.0\Simpl
 C:\Users\Decagon\source\repos\SimpleToDoApi\SimpleToDoApi\obj\Debug\net5.0\ref\SimpleToDoApi.dll
 C:\Users\Decagon\source\repos\SimpleToDoApi\SimpleToDoApi\obj\Debug\net5.0\SimpleToDoApi.pdb
 C:\Users\Decagon\source\repos\SimpleToDoApi\SimpleToDoApi\obj\Debug\net5.0\SimpleToDoApi.genruntimeconfig.cache
-C:\Users\Decagon\source\repos\SimpleToDoApi\SimpleToDoApi\obj\Debug\net5.0\SimpleToDoApi.csproj.AssemblyReference.cache

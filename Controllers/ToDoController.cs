@@ -14,7 +14,7 @@ namespace SimpleToDoApi.Controllers
 {
     [Route("api/[controller]")]//api/todo
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ToDoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SimpleToDoApi.Configuration;
@@ -31,11 +32,15 @@ namespace SimpleToDoApi.Controllers
         private readonly JwtConfig _jwtConfig;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly ApplicationDbContext _applicationDbContext;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<AuthManagementController> _logger;
         public AuthManagementController(
             UserManager<IdentityUser> userManager,
             IOptionsMonitor<JwtConfig> optionsMonitor,
             TokenValidationParameters tokenValidationParameters,
-             ApplicationDbContext applicationDbContext
+             ApplicationDbContext applicationDbContext,
+            RoleManager<IdentityRole> roleManager,
+            ILogger<AuthManagementController> logger
             )
 
         {
@@ -43,6 +48,8 @@ namespace SimpleToDoApi.Controllers
             _jwtConfig = optionsMonitor.CurrentValue;
             _tokenValidationParameters = tokenValidationParameters;
             _applicationDbContext = applicationDbContext;
+            _roleManager = roleManager;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -69,6 +76,8 @@ namespace SimpleToDoApi.Controllers
                 var isCreated = await _userManager.CreateAsync(newUser, user.Password);
                 if (isCreated.Succeeded)
                 {
+                    //Wee need to addthe user to a role
+                    var resultRoleAdition = await _userManager.AddToRoleAsync(newUser,"AppUser");
                     var jwtToken = await  GenerateJwtToken(newUser);
                     return Ok(jwtToken);
            }
@@ -172,17 +181,11 @@ namespace SimpleToDoApi.Controllers
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+            var claims = await  GetAllValidClaims(user);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-
-                {
-                    new Claim("Id", user.Id),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                }),
-                Expires = DateTime.UtcNow.AddSeconds(30),
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 
             };
@@ -208,6 +211,40 @@ namespace SimpleToDoApi.Controllers
 
 
             };
+        }
+        //Get all valid claims for the corresponding user
+        private async Task<List<Claim>>GetAllValidClaims(IdentityUser user)
+        {
+            var _options = new IdentityOptions();
+            var claims = new List<Claim>
+            {
+                 new Claim("Id", user.Id),
+                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+
+            };
+            // Getting the claims that we have assigned to the user
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaims);
+
+            //Get the user role and add it to the claims
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach(var userRole in userRoles)
+            {
+               
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if(role != null)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, userRole));
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    foreach(var roleClaim in roleClaims)
+                    {
+                        claims.Add(roleClaim);
+                    }
+                }
+            }
+            return claims;
         }
         private async Task<AuthResult> VerifyAndGenerateToken(TokenRequest tokenRequest)
         {

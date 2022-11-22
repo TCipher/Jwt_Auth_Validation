@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
+using SimpleToDoApi.Repository;
 
 namespace SimpleToDoApi
 {
@@ -69,6 +70,7 @@ namespace SimpleToDoApi
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SimpleToDoApi", Version = "v1" });
+              
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -96,10 +98,8 @@ namespace SimpleToDoApi
             });
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("DepartmentPolicy",
-                policy => policy.RequireClaim("department"));
             });
-          
+            services.AddScoped<IUserRepository, UserRepository>();
         }
        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

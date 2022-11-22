@@ -12,17 +12,17 @@ namespace SimpleToDoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SetupController : ControllerBase
+    public class RolesSetupController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ILogger<SetupController> _logger;
-        public SetupController(
+        private readonly ILogger<RolesSetupController> _logger;
+        public RolesSetupController(
              ApplicationDbContext context,
             UserManager<IdentityUser> userManager,
              RoleManager<IdentityRole> roleManager,
-             ILogger<SetupController> logger
+             ILogger<RolesSetupController> logger
             )
         {
             _logger = logger;

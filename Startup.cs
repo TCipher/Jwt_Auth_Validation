@@ -94,6 +94,11 @@ namespace SimpleToDoApi
                 
                 });
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("DepartmentPolicy",
+                policy => policy.RequireClaim("department"));
+            });
           
         }
        

@@ -32,9 +32,9 @@ namespace SimpleToDoApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllROles")]
+        [Route("GetAllRoles")]
 
-        public IActionResult GetAllROles()
+        public IActionResult GetAllRoles()
         {
             var roles = _roleManager.Roles.ToList();
             return Ok(roles);
@@ -85,7 +85,7 @@ namespace SimpleToDoApi.Controllers
 
         [HttpPost]
         [Route("AddUserToRole")]
-        public async Task<IActionResult> AddUserTORoles(string email, string roleName)
+        public async Task<IActionResult> AddUserToRoles(string email, string roleName)
         {
             //Check if the user exist
             var user = await _userManager.FindByEmailAsync(email);

@@ -14,7 +14,7 @@ namespace SimpleToDoApi.Controllers
 {
     [Route("api/[controller]")]//api/todo
     [ApiController]
-   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles ="AppUser")]
     public class ToDoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -32,6 +32,7 @@ namespace SimpleToDoApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "DepartmentPolicy")]
         public async Task<IActionResult> CreateItem(ToDoItem data)
         {
             if (ModelState.IsValid)
